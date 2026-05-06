@@ -1,0 +1,231 @@
+airtable:
+  base_id: ${AIRTABLE_BASE_ID}   # set in .env
+  table_name: "Content Inbox"
+
+# ---------- RSS FEEDS (newsletters + Google Alerts) ----------
+# Add any RSS feed URL here — newsletters, blog feeds, Google Alerts, etc.
+# Leave this list empty or remove entries and the system will just skip it.
+feeds:
+  # --- DTC NEWSLETTERS ---
+  - url: "https://dtcnewsletter.com/feed/"
+    platform: "Newsletter"
+    label: "DTC Newsletter"
+
+  - url: "https://www.workweek.com/brand/dtc/feed"
+    platform: "Newsletter"
+    label: "WorkWeek DTC"
+
+  # --- GOOGLE ALERTS (free) ---
+  # Setup: google.com/alerts → type your query → Show options → Deliver to: RSS feed → Create
+  # Copy the feed URL from the alert and paste it below.
+  #
+  # Run  python main.py --list-alerts  to see every query you should create,
+  # expanded from your brands and products lists above.
+  #
+  # LITERAL — create one alert for each of these:
+  #   "DTC launch"
+  #   "Shopify brand launch"
+  #   "ecommerce brand founded"
+  #
+  # BRAND TEMPLATES — create one alert per brand you track:
+  #   "[brand] revenue"     e.g. "SKIMS revenue"
+  #   "[brand] Shopify"     e.g. "Gymshark Shopify"
+  #
+  # PRODUCT TEMPLATES — create one alert per product you track:
+  #   "[product] Shopify"   e.g. "ice roller Shopify"
+  #   "[product] brand"     e.g. "silk pillowcase brand"
+  #
+  # Paste each alert's RSS URL as a new entry below:
+  # - url: "https://www.google.com/alerts/feeds/YOUR_ID/YOUR_ALERT_ID"
+  #   platform: "Google Alerts"
+  #   label: "Google Alert — DTC launch"
+
+# ---------- TIKTOK ----------
+# Collected via Apify's clockworks/tiktok-scraper actor. All items are filtered
+# by min_views before entering Airtable — no view count blind spots.
+#
+# SETUP:
+#   1. pip install apify-client
+#   2. Sign up at https://apify.com (free tier includes $5/mo of credits)
+#   3. Grab your token: https://console.apify.com/account/integrations
+#   4. Set APIFY_TOKEN in your .env file
+#
+# Pricing: ~$0.30 per 1,000 video results.
+#
+# Any section (hashtags / search_keywords / brands / products) can be left
+# empty or removed — the system will skip it and run whatever remains.
+
+# ---------- TRACKING LISTS ----------
+# Shared across TikTok searches AND Google Alert query generation.
+# Run  python main.py --list-alerts  to see every Google Alert query to create.
+tracking:
+  brands:
+    # - SKIMS
+    # - Gymshark
+    # - Tabs Chocolate
+    # - Glamnetic
+
+  products:
+    # - "ice roller"
+    # - "silk pillowcase"
+    # - "teeth whitening"
+    # - "scalp massager"
+
+# ---------- GOOGLE ALERTS TEMPLATES ----------
+# These define WHAT queries to create on google.com/alerts.
+# [brand] and [product] expand against the tracking lists above.
+# Run  python main.py --list-alerts  to print the full expanded list.
+# After creating each alert, paste its RSS URL into the feeds section above.
+google_alerts:
+  literal:
+    - "DTC launch"
+    - "Shopify brand launch"
+    - "ecommerce brand founded"
+
+  brand_templates:
+    - "[brand] revenue"
+    - "[brand] Shopify"
+
+  product_templates:
+    - "[product] Shopify"
+    - "[product] brand"
+
+tiktok:
+  min_views: 500000     # only surface videos with 500k+ views
+  fetch_count: 50       # videos to check per hashtag or keyword
+
+  # KEYWORD SEARCH — same as typing into TikTok's search bar.
+  # [brand] and [product] expand against tracking.brands / tracking.products above.
+  # Keywords without a placeholder run exactly as written.
+  # Remove any you don't want — the rest still run fine.
+  search_keywords:
+    # Brand-specific (expands per brand)
+    - "[brand] TikTok"
+    - "[brand] review"
+    - "[brand] unboxing"
+    - "[brand] haul"
+    - "[brand] worth it"
+    - "[brand] dupe"
+    - "[brand] vs"
+
+    # Product-specific (expands per product)
+    - "[product] review"
+    - "[product] unboxing"
+    - "[product] TikTok"
+    - "[product] dupe"
+    - "where to buy [product]"
+
+    # Viral / purchase intent (literal — no substitution)
+    - "TikTok made me buy"
+    - "TikTok made me buy it"
+    - "UGC for brand"
+    - "brand partnership TikTok"
+    - "TikTok shop review"
+
+    # Founder / owner signals (literal)
+    - "my Shopify store"
+    - "I started my brand"
+    - "DTC brand I built"
+    - "my brand revenue"
+    - "we launched our product"
+    - "my store made"
+    - "sold out my product"
+    - "small business check"
+    - "packing orders with me"
+    - "day in my life small business"
+    - "running my online store"
+    - "my product went viral"
+    - "TikTok made me sell out"
+
+  hashtags:
+    # Tier 1 — real ops (highest signal)
+    - packingorders
+    - packingorderswithme
+    - smallbusinesscheck
+    - brandcheck
+    - shopifystore
+
+    # Tier 2 — revenue / milestone moments
+    - soldout
+    - businessmilestone
+    - restocked
+
+    # Tier 3 — product virality / UGC
+    - tiktokshop
+    - tiktokfinds
+    - brandpartner
+
+# ---------- KEYWORD FILTERS ----------
+# Applied to RSS/newsletter items only.
+# TikTok items bypass this — already filtered by hashtag/keyword + view count.
+# Remove any entry you don't want; the rest still apply.
+keywords:
+  required:
+    - "my store"
+    - "our store"
+    - "my brand"
+    - "our brand"
+    - "my product"
+    - "our product"
+    - "my shopify"
+    - "i sell"
+    - "we sell"
+    - "i launched"
+    - "we launched"
+    - "i built"
+    - "we built"
+    - "i started"
+    - "bootstrapped my"
+    - "packing orders"
+    - "sold out"
+    - "our roas"
+    - "our cac"
+    - "our ltv"
+    - "our revenue"
+    - "our sales"
+    - "my supplier"
+    - "my manufacturer"
+    - "my 3pl"
+    - "went viral"
+
+  revenue:
+    high:
+      - "we did $"
+      - "hit $"
+      - "crossed $"
+      - "made $"
+      - "7 figure"
+      - "7-figure"
+      - "6 figure"
+      - "6-figure"
+      - "$1m"
+      - "$500k"
+      - "$100k"
+      - "million in revenue"
+      - "million in sales"
+      - "first $1"
+      - "first million"
+    medium:
+      - "our revenue"
+      - "our sales"
+      - "monthly sales"
+      - "profitable"
+      - "our roas"
+      - "our cac"
+      - "ad spend"
+      - "conversion rate"
+      - "crossed"
+      - "launched my"
+      - "we launched"
+    low:
+      - "packing orders"
+      - "sold out"
+      - "restocked"
+      - "my store"
+      - "our brand"
+      - "my product"
+      - "went viral"
+
+# ---------- SCHEDULER ----------
+schedule:
+  interval_minutes: 60
