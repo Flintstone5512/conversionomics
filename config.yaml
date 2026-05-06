@@ -11,10 +11,6 @@ feeds:
     platform: "Newsletter"
     label: "DTC Newsletter"
 
-  - url: "https://www.workweek.com/brand/dtc/feed"
-    platform: "Newsletter"
-    label: "WorkWeek DTC"
-
   # --- GOOGLE ALERTS (free) ---
   # Setup: google.com/alerts → type your query → Show options → Deliver to: RSS feed → Create
   # Copy the feed URL from the alert and paste it below.
@@ -92,7 +88,7 @@ google_alerts:
 
 tiktok:
   min_views: 500000     # only surface videos with 500k+ views
-  fetch_count: 50       # videos to check per hashtag or keyword
+  fetch_count: 15       # videos to check per hashtag or keyword (keeps Apify cost ~$4/mo)
 
   # KEYWORD SEARCH — same as typing into TikTok's search bar.
   # [brand] and [product] expand against tracking.brands / tracking.products above.
