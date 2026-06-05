@@ -182,7 +182,7 @@ def generate():
 
 
 if __name__ == "__main__":
-    port = int(os.environ.get("WEBHOOK_PORT", 5000))
+    port = int(os.environ.get("PORT") or os.environ.get("WEBHOOK_PORT", 5000))
     log.info("Starting webhook server on port %d", port)
     log.info("POST http://localhost:%d/generate  {record_id, base_id}", port)
     app.run(host="0.0.0.0", port=port, debug=False)

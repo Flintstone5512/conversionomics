@@ -1,14 +1,14 @@
 """
-Viral teardown script generator using Claude claude-opus-4-7.
+Viral teardown script generator using ChatGPT (gpt-4o).
 
 Randomly selects one option from each rotation layer (Entry Point, Villain,
 Focal Lens, Role, Outcome), then builds a master prompt and streams a complete
-YouTube teardown script via the Anthropic SDK.
+YouTube teardown script via the OpenAI SDK.
 """
 
 import random
 import logging
-from anthropic import Anthropic
+from openai import OpenAI
 
 log = logging.getLogger(__name__)
 
@@ -183,7 +183,7 @@ def generate_script(brand_data: dict) -> dict:
     }
 
     prompt = _build_prompt(brand_data, rotation)
-    client = Anthropic()
+    client = OpenAI()
 
     log.info(
         "Generating script for '%s' | Entry: %s... | Villain: %s...",
@@ -193,14 +193,16 @@ def generate_script(brand_data: dict) -> dict:
     )
 
     full_text = ""
-    with client.messages.stream(
-        model="claude-opus-4-7",
+    with client.chat.completions.create(
+        model="gpt-4o",
         max_tokens=2000,
-        thinking={"type": "adaptive"},
         messages=[{"role": "user", "content": prompt}],
+        stream=True,
     ) as stream:
-        for text in stream.text_stream:
-            full_text += text
+        for chunk in stream:
+            delta = chunk.choices[0].delta.content
+            if delta:
+                full_text += delta
 
     log.info("Script generated (%d chars)", len(full_text))
 

@@ -88,37 +88,26 @@ google_alerts:
 
 tiktok:
   min_views: 500000     # only surface videos with 500k+ views
-  fetch_count: 15       # videos to check per hashtag or keyword (keeps Apify cost ~$4/mo)
+  fetch_count: 15       # videos to check per keyword/hashtag (keeps Apify cost ~$4/mo)
 
-  # KEYWORD SEARCH — same as typing into TikTok's search bar.
-  # [brand] and [product] expand against tracking.brands / tracking.products above.
-  # Keywords without a placeholder run exactly as written.
-  # Remove any you don't want — the rest still run fine.
   search_keywords:
-    # Brand-specific (expands per brand)
-    - "[brand] TikTok"
-    - "[brand] review"
-    - "[brand] unboxing"
-    - "[brand] haul"
-    - "[brand] worth it"
-    - "[brand] dupe"
-    - "[brand] vs"
-
-    # Product-specific (expands per product)
-    - "[product] review"
-    - "[product] unboxing"
-    - "[product] TikTok"
-    - "[product] dupe"
-    - "where to buy [product]"
-
-    # Viral / purchase intent (literal — no substitution)
+    # Viral / purchase intent
     - "TikTok made me buy"
     - "TikTok made me buy it"
+    - "bought this because TikTok"
+    - "found this on TikTok"
+    - "TikTok shop review"
+    - "TikTok product review"
+    - "product went viral on TikTok"
+    - "this product blew up"
+    - "viral product 2024"
     - "UGC for brand"
     - "brand partnership TikTok"
-    - "TikTok shop review"
+    - "dropshipping product"
+    - "print on demand"
+    - "Amazon product review"
 
-    # Founder / owner signals (literal)
+    # Founder / owner signals
     - "my Shopify store"
     - "I started my brand"
     - "DTC brand I built"
@@ -150,6 +139,10 @@ tiktok:
     - tiktokshop
     - tiktokfinds
     - brandpartner
+    - viraltiktok
+    - tiktokmademebuyit
+    - productreview
+    - tiktokrecommends
 
 # ---------- KEYWORD FILTERS ----------
 # Applied to RSS/newsletter items only.
