@@ -71,11 +71,9 @@ def _build_prompt(brand_data: dict, rotation: dict) -> str:
     if not notes:
         notes = "(No analyst notes provided — infer from source link and brand name only.)"
 
-    return f"""You are a viral DTC conversion analyst who creates YouTube teardown scripts.
+    return f"""You are writing a YouTube script for a DTC conversion analyst channel. Output ONLY the spoken script — no preamble, no sign-off, no section labels, no meta-commentary. Start with the first spoken word and end with the last spoken word.
 
-Your audience is ecommerce brand owners, media buyers, and DTC founders who want to understand WHY certain content converts — not just why it goes viral. You apply direct-response principles to organic content. You never sell; you shift beliefs and surface non-obvious insights.
-
-Your tone: sharp, confident, specific. No filler. No generic advice. Every sentence earns its place. When you land an insight, spend 45–60 seconds on it — expand it, make it visceral, show the buyer's internal experience. Do not move on after one sentence.
+TONE: Casual and direct, like a smart friend who happens to know more about conversion than anyone in the room. Not formal. Not corporate. Confident but conversational — short punchy sentences mixed with longer explanations when an idea needs space.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 VIDEO REFERENCE
@@ -84,31 +82,27 @@ Brand: {brand}
 Source Video: {src_link}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-ANALYST NOTES
-(These are the only inputs you should build the script from)
+ANALYST NOTES — YOUR ONLY SOURCE MATERIAL
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Everything in the script must come directly from these notes.
+Do not invent details. Do not substitute generic observations.
+If a note says there is no bio link, the script must address the absence of a bio link — not invent one.
+Cite the specific numbers from the notes. Use the analyst's exact observations as the raw material.
+
 {notes}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-HIDDEN CONSTANT ANALYSIS
-(Do this internally before writing — do not show this section in output)
+PRE-WRITE (internal only — do not output this)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Before writing a single word of the script, work through all 5 diagnostic layers for this brand:
-
-Layer 1 — Observation: What exactly happened? What did the data show?
-Layer 2 — Diagnosis: Why did it happen? What mechanic drove or killed the result?
-Layer 3 — Psychology: What was the buyer thinking at each step? What did they feel, fear, or assume?
-Layer 4 — System: Why does this pattern repeat across brands? What structural force causes it?
-Layer 5 — Principle: What is the one transferable lesson a founder can carry into their own brand?
-
-Also work through:
-- Traffic Reality — who is actually watching vs. who the brand thinks is watching
-- Friction & Anxiety Points — the #1 hidden barrier stopping a ready buyer from converting
-- Micro-Decision Diagnosis — the 3–5 decisions made between "watch" and "buy"
-- System-Level Fix — the single highest-leverage change that would 10x results
+Before writing, silently work through the 5 layers using ONLY what's in the notes above:
+Layer 1 — Observation: What exactly happened per the notes?
+Layer 2 — Diagnosis: Why did it happen?
+Layer 3 — Psychology: What was the buyer thinking at each step?
+Layer 4 — System: Why does this pattern repeat across brands?
+Layer 5 — Principle: The one transferable lesson.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-SCRIPT ROTATION VARIABLES (selected for this episode)
+SCRIPT ROTATION (shapes angle and voice — do not state these out loud)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Entry Point:  {rotation['entry_point']}
 Villain:      {rotation['villain']}
@@ -117,51 +111,35 @@ Role:         {rotation['role']}
 Outcome:      {rotation['outcome']}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-SCRIPT STRUCTURE
+SCRIPT STRUCTURE (internal guide — do not label or announce sections)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Write a complete YouTube script using the structure below. Label each section. Target 6–8 minutes of spoken content.
+Follow this arc naturally without labeling it:
 
-[ACT 1 — HOOK + EVIDENCE  |  0:00–2:00]
-Open with the selected Entry Point. First sentence must be a pattern interrupt — something the viewer
-did not expect. Then show the video: what brand, what content, what the numbers were.
-Then show the evidence — what happened after the video? Comments, saves, views, bio-link behavior.
-Make the viewer feel the gap: huge reach, unclear conversion. End Act 1 with a question that pulls
-them into Act 2. ("So why didn't it convert? That's what we're here for.")
+Act 1 (0:00–2:00) — Hook + Evidence
+Open with the Entry Point approach. Pattern interrupt in the first sentence.
+Walk through what happened — the content, the numbers from the notes, what engagement looked like.
+Build the gap between reach and revenue without naming it yet.
+End with a question that pulls into Act 2.
 
-[ACT 2 — THE HIDDEN MECHANISM  |  2:00–5:00]
-This is the analytical core. Apply the Focal Lens and the 5 diagnostic layers rigorously.
-Surface 3–4 non-obvious insights. For each insight:
-  • State it clearly in one sentence.
-  • Then expand it for 45–60 seconds: show the buyer's internal experience, the specific moment
-    momentum broke, the micro-decision that killed intent. Use the cold traffic principle where
-    relevant: cold traffic doesn't investigate. It doesn't open tabs. It follows momentum.
-    The moment momentum breaks, curiosity turns back into scrolling.
-  • Ground every insight in a specific detail from the video (hook phrasing, comment text,
-    CTA placement, bio link type). No generic observations.
-Weave in the Villain without naming it yet — let it build.
+Act 2 (2:00–5:00) — The Hidden Mechanism
+Surface 3–4 non-obvious insights directly from the notes.
+Each insight: one clear sentence to state it, then 45–60 seconds to expand it — show the buyer's internal experience, the moment momentum broke. Cold traffic doesn't investigate. It doesn't open tabs. It follows momentum. The moment it breaks, curiosity turns back into scrolling.
+Build toward the villain without naming it.
 
-[ACT 3 — THE LARGER PATTERN  |  5:00–7:30]
-Zoom out. Name the Villain explicitly. Show why this same misdiagnosis happens repeatedly across
-DTC brands — not because founders are careless, but because the system creates a blind spot.
-Explain the structural force at work. Why does interest not equal intent? Why does reach not
-equal revenue? Make it feel like a diagnosis the viewer recognizes from their own business.
-Then present the System Fix: one specific, concrete change — what changes, what it does to the
-funnel, and how you know. Be precise, not vague.
+Act 3 (5:00–7:30) — The Larger Pattern
+Zoom out. Name the villain naturally in conversation — not as an announcement, just as the word that finally fits what you've been describing. Show the structural blind spot. System fix: one specific concrete change, what it does to the funnel, and why you know it works.
 
-[CLOSE — BIG INSIGHT  |  7:30–8:00]
-Land the Principle — the single transferable lesson from this teardown. Deliver the selected
-Outcome. One sentence that reframes how the viewer will look at their own content from now on.
-No generic CTAs. No "smash that subscribe button." End on the insight, not the ask.
+Close (7:30–8:00)
+The single transferable principle. One sentence that reframes how the viewer sees their own content going forward. No generic CTAs. End on the insight.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-OUTPUT FORMAT
+OUTPUT RULES
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-- Write in spoken English — natural, punchy, like a confident analyst on camera
-- Total length: 1,200–1,600 words (6–8 minutes at a deliberate on-camera pace)
-- Every key insight gets fully expanded — do not move on after one sentence
-- Do not include stage directions, camera cues, or B-roll notes
-- Do not include the Hidden Constant section in the output
-- Label each section with the bracket headers above
+- Output ONLY the spoken script. Nothing else.
+- No section headers, no labels, no timestamps
+- No "here's where we..." or "now let's look at..." meta-commentary
+- No invented details — only what's in the analyst notes
+- 1,200–1,600 words. Casual but sharp. Every sentence earns its place.
 """
 
 
