@@ -63,84 +63,46 @@ OUTCOMES = [
 
 # ── Prompt builder ───────────────────────────────────────────────────────────
 
-def _build_prompt(brand_data: dict, rotation: dict) -> str:
+def _build_system_prompt() -> str:
+    return """You write YouTube teardown scripts for a DTC conversion analyst channel.
+
+RULES — follow every one, no exceptions:
+1. Output ONLY the spoken script. No preamble ("Certainly!", "Here's a script..."), no section labels, no timestamps, no meta-commentary ("here's where we...", "now let's look at..."). First word out is the first spoken word of the video.
+2. Every specific fact, number, observation, and detail in the script must come directly from the analyst notes. Do not invent, substitute, or generalize. If the notes say there is no bio link — discuss the absence of a bio link. If the notes give an exact number — use that exact number. If the notes mention AI-generated content — that goes in the script.
+3. This is a breakdown of the SPECIFIC video described in the notes, not a generic teardown template. The viewer should be able to follow along watching that exact video.
+4. Tone: casual and direct. Like a sharp friend who knows more about conversion than anyone in the room. Not formal, not corporate. Short punchy sentences. Expand when an idea needs space. Confident but never stiff.
+5. Structure (follow naturally, do not label or announce):
+   - Open with a pattern interrupt. Walk through the video and its exact numbers. Build the gap between reach and revenue.
+   - Dig into 3–4 non-obvious insights pulled from the notes. Each gets fully expanded — state it, then spend 45–60 seconds on the buyer's internal experience, where momentum broke, what cold traffic actually does (it doesn't investigate, doesn't open tabs, follows momentum — the moment it breaks, they're scrolling again).
+   - Zoom out to the larger pattern. Name the villain naturally in conversation. One concrete system fix.
+   - Close with the single transferable principle. End on the insight, not an ask.
+6. Length: 1,200–1,600 words."""
+
+
+def _build_user_prompt(brand_data: dict, rotation: dict) -> str:
     brand    = brand_data.get("brand_name", "Unknown Brand")
     src_link = brand_data.get("source_link", "")
     notes    = brand_data.get("notes", "").strip()
 
     if not notes:
-        notes = "(No analyst notes provided — infer from source link and brand name only.)"
+        notes = "(No analyst notes provided.)"
 
-    return f"""You are writing a YouTube script for a DTC conversion analyst channel. Output ONLY the spoken script — no preamble, no sign-off, no section labels, no meta-commentary. Start with the first spoken word and end with the last spoken word.
+    return f"""Write a YouTube teardown script for this video using ONLY the details in the notes below.
 
-TONE: Casual and direct, like a smart friend who happens to know more about conversion than anyone in the room. Not formal. Not corporate. Confident but conversational — short punchy sentences mixed with longer explanations when an idea needs space.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-VIDEO REFERENCE
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Video: {src_link}
 Brand: {brand}
-Source Video: {src_link}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-ANALYST NOTES — YOUR ONLY SOURCE MATERIAL
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Everything in the script must come directly from these notes.
-Do not invent details. Do not substitute generic observations.
-If a note says there is no bio link, the script must address the absence of a bio link — not invent one.
-Cite the specific numbers from the notes. Use the analyst's exact observations as the raw material.
-
+ANALYST NOTES (your only source material — every point in these notes must appear in the script):
 {notes}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-PRE-WRITE (internal only — do not output this)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Before writing, silently work through the 5 layers using ONLY what's in the notes above:
-Layer 1 — Observation: What exactly happened per the notes?
-Layer 2 — Diagnosis: Why did it happen?
-Layer 3 — Psychology: What was the buyer thinking at each step?
-Layer 4 — System: Why does this pattern repeat across brands?
-Layer 5 — Principle: The one transferable lesson.
+Rotation variables (shape the angle and voice — do not state these out loud):
+Entry Point: {rotation['entry_point']}
+Villain: {rotation['villain']}
+Focal Lens: {rotation['focal_lens']}
+Role: {rotation['role']}
+Outcome: {rotation['outcome']}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-SCRIPT ROTATION (shapes angle and voice — do not state these out loud)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Entry Point:  {rotation['entry_point']}
-Villain:      {rotation['villain']}
-Focal Lens:   {rotation['focal_lens']}
-Role:         {rotation['role']}
-Outcome:      {rotation['outcome']}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-SCRIPT STRUCTURE (internal guide — do not label or announce sections)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Follow this arc naturally without labeling it:
-
-Act 1 (0:00–2:00) — Hook + Evidence
-Open with the Entry Point approach. Pattern interrupt in the first sentence.
-Walk through what happened — the content, the numbers from the notes, what engagement looked like.
-Build the gap between reach and revenue without naming it yet.
-End with a question that pulls into Act 2.
-
-Act 2 (2:00–5:00) — The Hidden Mechanism
-Surface 3–4 non-obvious insights directly from the notes.
-Each insight: one clear sentence to state it, then 45–60 seconds to expand it — show the buyer's internal experience, the moment momentum broke. Cold traffic doesn't investigate. It doesn't open tabs. It follows momentum. The moment it breaks, curiosity turns back into scrolling.
-Build toward the villain without naming it.
-
-Act 3 (5:00–7:30) — The Larger Pattern
-Zoom out. Name the villain naturally in conversation — not as an announcement, just as the word that finally fits what you've been describing. Show the structural blind spot. System fix: one specific concrete change, what it does to the funnel, and why you know it works.
-
-Close (7:30–8:00)
-The single transferable principle. One sentence that reframes how the viewer sees their own content going forward. No generic CTAs. End on the insight.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-OUTPUT RULES
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-- Output ONLY the spoken script. Nothing else.
-- No section headers, no labels, no timestamps
-- No "here's where we..." or "now let's look at..." meta-commentary
-- No invented details — only what's in the analyst notes
-- 1,200–1,600 words. Casual but sharp. Every sentence earns its place.
-"""
+Write the script now. Start with the first spoken word."""
 
 
 # ── Main generator ────────────────────────────────────────────────────────────
@@ -158,7 +120,8 @@ def generate_script(brand_data: dict) -> dict:
         "outcome":     random.choice(OUTCOMES),
     }
 
-    prompt = _build_prompt(brand_data, rotation)
+    system_prompt = _build_system_prompt()
+    user_prompt   = _build_user_prompt(brand_data, rotation)
     client = OpenAI()
 
     log.info(
@@ -171,8 +134,11 @@ def generate_script(brand_data: dict) -> dict:
     full_text = ""
     with client.chat.completions.create(
         model="gpt-4o",
-        max_tokens=2000,
-        messages=[{"role": "user", "content": prompt}],
+        max_tokens=4000,
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user",   "content": user_prompt},
+        ],
         stream=True,
     ) as stream:
         for chunk in stream:
