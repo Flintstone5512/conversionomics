@@ -68,11 +68,18 @@ def list_alerts(cfg: dict) -> None:
     print("  the feeds: section of config.yaml.\n")
 
 
-def run_pipeline(cfg: dict, dry_run: bool = False) -> None:
+def run_pipeline(cfg: dict, dry_run: bool = False, limit: int = 0) -> None:
     log.info("=== Pipeline start ===")
 
     tracking = cfg.get("tracking") or {}
     tiktok_cfg = {**(cfg.get("tiktok") or {}), **tracking}
+
+    if limit:
+        tiktok_cfg["fetch_count"] = limit
+        tiktok_cfg["hashtags"] = (tiktok_cfg.get("hashtags") or [])[:limit]
+        tiktok_cfg["search_keywords"] = (tiktok_cfg.get("search_keywords") or [])[:limit]
+        log.info("Test limit: fetch_count=%d, %d hashtags, %d keywords",
+                 limit, len(tiktok_cfg["hashtags"]), len(tiktok_cfg["search_keywords"]))
 
     rss_items = collect_all_feeds(cfg.get("feeds") or [])
     tiktok_items = collect_tiktok(tiktok_cfg)
@@ -103,6 +110,7 @@ def main():
     parser.add_argument("--schedule", action="store_true", help="Run on a recurring schedule")
     parser.add_argument("--dry-run", action="store_true", help="Print results without writing to Airtable")
     parser.add_argument("--list-alerts", action="store_true", help="Print all Google Alert queries to create")
+    parser.add_argument("--limit", type=int, default=0, metavar="N", help="Cap inserts at N items (for testing)")
     args = parser.parse_args()
 
     cfg = load_config()
@@ -114,13 +122,13 @@ def main():
     if args.schedule:
         interval = (cfg.get("schedule") or {}).get("interval_minutes") or 60
         log.info("Scheduling pipeline every %d minutes.", interval)
-        run_pipeline(cfg, dry_run=args.dry_run)
-        schedule.every(interval).minutes.do(run_pipeline, cfg=cfg, dry_run=args.dry_run)
+        run_pipeline(cfg, dry_run=args.dry_run, limit=args.limit)
+        schedule.every(interval).minutes.do(run_pipeline, cfg=cfg, dry_run=args.dry_run, limit=args.limit)
         while True:
             schedule.run_pending()
             time.sleep(30)
     else:
-        run_pipeline(cfg, dry_run=args.dry_run)
+        run_pipeline(cfg, dry_run=args.dry_run, limit=args.limit)
 
 
 if __name__ == "__main__":

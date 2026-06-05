@@ -43,21 +43,9 @@ app = Flask(__name__)
 
 # Fields read from Content Inbox
 INBOX_FIELDS = {
-    "brand_name":            "Brand Name",
-    "product_name":          "Product Name",
-    "source_link":           "Source Link",
-    "platform":              "Platform",
-    "revenue_signal":        "Revenue Signal",
-    "play_count":            "Play Count",
-    "raw_title":             "Raw Title",
-    # Fields the user fills manually before pressing Generate Script:
-    "video_hook":            "Video Hook",
-    "video_format":          "Video Format",
-    "comment_observations":  "Comment Observations",
-    "cta_present":           "CTA Present",
-    "bio_link_destination":  "Bio Link Destination",
-    "price_point":           "Price Point",
-    "product_category":      "Product Category",
+    "brand_name":  "Brand Name",
+    "source_link": "Source Link",
+    "notes":       "Notes",
 }
 
 # Fields written to Script Queue

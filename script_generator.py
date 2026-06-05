@@ -64,22 +64,12 @@ OUTCOMES = [
 # ── Prompt builder ───────────────────────────────────────────────────────────
 
 def _build_prompt(brand_data: dict, rotation: dict) -> str:
-    brand     = brand_data.get("brand_name", "Unknown Brand")
-    product   = brand_data.get("product_name", "")
-    src_link  = brand_data.get("source_link", "")
-    raw_title = brand_data.get("raw_title", "")
-    revenue   = brand_data.get("revenue_signal", "")
-    views     = brand_data.get("play_count", 0)
-    hook      = brand_data.get("video_hook", "")
-    fmt       = brand_data.get("video_format", "")
-    comments  = brand_data.get("comment_observations", "")
-    cta       = brand_data.get("cta_present", "")
-    bio_link  = brand_data.get("bio_link_destination", "")
-    price     = brand_data.get("price_point", "")
-    category  = brand_data.get("product_category", "")
+    brand    = brand_data.get("brand_name", "Unknown Brand")
+    src_link = brand_data.get("source_link", "")
+    notes    = brand_data.get("notes", "").strip()
 
-    product_block = f"\nProduct: {product}" if product else ""
-    views_fmt     = f"{views:,}" if isinstance(views, int) else str(views)
+    if not notes:
+        notes = "(No analyst notes provided — infer from source link and brand name only.)"
 
     return f"""You are a viral DTC conversion analyst who creates YouTube teardown scripts.
 
@@ -88,21 +78,16 @@ Your audience is ecommerce brand owners, media buyers, and DTC founders who want
 Your tone: sharp, confident, specific. No filler. No generic advice. Every sentence earns its place. When you land an insight, spend 45–60 seconds on it — expand it, make it visceral, show the buyer's internal experience. Do not move on after one sentence.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-BRAND / VIDEO CONTEXT
+VIDEO REFERENCE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Brand: {brand}{product_block}
-Category: {category or "Unknown"}
-Price Point: {price or "Unknown"}
-Revenue Signal: {revenue or "Unknown"}
-View Count: {views_fmt}
+Brand: {brand}
 Source Video: {src_link}
-Raw Title / Caption: {raw_title}
 
-Video Hook (first 3 seconds): {hook or "Not provided"}
-Video Format: {fmt or "Not provided"}
-Comment Observations: {comments or "Not provided"}
-CTA Present: {cta or "Not provided"}
-Bio Link Destination: {bio_link or "Not provided"}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ANALYST NOTES
+(These are the only inputs you should build the script from)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+{notes}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 HIDDEN CONSTANT ANALYSIS

@@ -37,7 +37,7 @@ def _build_record(item: dict, label: str) -> dict:
         "source_link": web_url,
         "platform": "TikTok",
         "feed_label": label,
-        "published_at": item.get("createTimeISO") or "",
+        "published_at": (item.get("createTimeISO") or "")[:10],  # YYYY-MM-DD only
         "play_count": play_count,
         "pre_filtered": True,  # skip RSS keyword filter — already filtered by query + views
     }
@@ -69,7 +69,8 @@ def _run_actor(client, run_input: dict, source_label: str) -> list[dict]:
     """Run the Apify actor and return all dataset items."""
     try:
         run = client.actor(ACTOR_ID).call(run_input=run_input)
-        dataset_id = run.default_dataset_id
+        # apify-client <1.x returns a dict; >=1.x returns a Run object
+        dataset_id = run.get("defaultDatasetId") if isinstance(run, dict) else run.default_dataset_id
         return list(client.dataset(dataset_id).iterate_items())
     except Exception as exc:
         log.error("Apify run failed (%s): %s", source_label, exc)

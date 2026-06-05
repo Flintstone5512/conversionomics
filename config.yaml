@@ -87,7 +87,7 @@ google_alerts:
     - "[product] brand"
 
 tiktok:
-  min_views: 500000     # only surface videos with 500k+ views
+  min_views: 100000     # only surface videos with 100k+ views (lowered for testing)
   fetch_count: 15       # videos to check per keyword/hashtag (keeps Apify cost ~$4/mo)
 
   search_keywords:
