@@ -124,11 +124,13 @@ def generate_script(brand_data: dict) -> dict:
     user_prompt   = _build_user_prompt(brand_data, rotation)
     client = OpenAI()
 
+    notes_preview = (brand_data.get("notes") or "")[:120] or "EMPTY"
     log.info(
-        "Generating script for '%s' | Entry: %s... | Villain: %s...",
+        "Generating script for '%s' | Entry: %s... | Villain: %s... | Notes: %s",
         brand_data.get("brand_name", "?"),
         rotation["entry_point"][:40],
         rotation["villain"][:40],
+        notes_preview,
     )
 
     full_text = ""
