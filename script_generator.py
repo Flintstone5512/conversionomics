@@ -85,7 +85,7 @@ def _build_prompt(brand_data: dict, rotation: dict) -> str:
 
 Your audience is ecommerce brand owners, media buyers, and DTC founders who want to understand WHY certain content converts — not just why it goes viral. You apply direct-response principles to organic content. You never sell; you shift beliefs and surface non-obvious insights.
 
-Your tone: sharp, confident, specific. No filler. No generic advice. Every sentence earns its place.
+Your tone: sharp, confident, specific. No filler. No generic advice. Every sentence earns its place. When you land an insight, spend 45–60 seconds on it — expand it, make it visceral, show the buyer's internal experience. Do not move on after one sentence.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 BRAND / VIDEO CONTEXT
@@ -108,14 +108,19 @@ Bio Link Destination: {bio_link or "Not provided"}
 HIDDEN CONSTANT ANALYSIS
 (Do this internally before writing — do not show this section in output)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Before writing a single word of the script, silently work through all 7 points:
-1. Traffic Reality — who is actually watching this content vs. who the brand thinks is watching
-2. Intent Signals — which engagement behaviors (saves, comments, shares) reveal purchase-ready viewers
-3. Belief Alignment — what core belief about themselves does this product let the buyer confirm
-4. Friction & Anxiety Points — what is the #1 hidden barrier stopping a ready buyer from converting
-5. Micro-Decision Diagnosis — the 3–5 micro-decisions made between "watch" and "buy"
-6. Likely Outcome — the real transformation the buyer wants vs. what the brand communicates
-7. System-Level Fix — the single highest-leverage change in funnel or content that would 10x results
+Before writing a single word of the script, work through all 5 diagnostic layers for this brand:
+
+Layer 1 — Observation: What exactly happened? What did the data show?
+Layer 2 — Diagnosis: Why did it happen? What mechanic drove or killed the result?
+Layer 3 — Psychology: What was the buyer thinking at each step? What did they feel, fear, or assume?
+Layer 4 — System: Why does this pattern repeat across brands? What structural force causes it?
+Layer 5 — Principle: What is the one transferable lesson a founder can carry into their own brand?
+
+Also work through:
+- Traffic Reality — who is actually watching vs. who the brand thinks is watching
+- Friction & Anxiety Points — the #1 hidden barrier stopping a ready buyer from converting
+- Micro-Decision Diagnosis — the 3–5 decisions made between "watch" and "buy"
+- System-Level Fix — the single highest-leverage change that would 10x results
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 SCRIPT ROTATION VARIABLES (selected for this episode)
@@ -129,38 +134,46 @@ Outcome:      {rotation['outcome']}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 SCRIPT STRUCTURE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Write a complete YouTube script with the following sections. Label each section clearly.
+Write a complete YouTube script using the structure below. Label each section. Target 6–8 minutes of spoken content.
 
-[HOOK — 0:00–0:20]
-Use the selected Entry Point approach. Must create a pattern interrupt in the first sentence.
-Target: viewer says "wait, I didn't think about it that way."
+[ACT 1 — HOOK + EVIDENCE  |  0:00–2:00]
+Open with the selected Entry Point. First sentence must be a pattern interrupt — something the viewer
+did not expect. Then show the video: what brand, what content, what the numbers were.
+Then show the evidence — what happened after the video? Comments, saves, views, bio-link behavior.
+Make the viewer feel the gap: huge reach, unclear conversion. End Act 1 with a question that pulls
+them into Act 2. ("So why didn't it convert? That's what we're here for.")
 
-[SETUP — 0:20–1:00]
-Introduce the brand and video being analyzed. Establish WHY this specific video is worth 8 minutes
-of anyone's time. Reference the Villain without naming it yet.
+[ACT 2 — THE HIDDEN MECHANISM  |  2:00–5:00]
+This is the analytical core. Apply the Focal Lens and the 5 diagnostic layers rigorously.
+Surface 3–4 non-obvious insights. For each insight:
+  • State it clearly in one sentence.
+  • Then expand it for 45–60 seconds: show the buyer's internal experience, the specific moment
+    momentum broke, the micro-decision that killed intent. Use the cold traffic principle where
+    relevant: cold traffic doesn't investigate. It doesn't open tabs. It follows momentum.
+    The moment momentum breaks, curiosity turns back into scrolling.
+  • Ground every insight in a specific detail from the video (hook phrasing, comment text,
+    CTA placement, bio link type). No generic observations.
+Weave in the Villain without naming it yet — let it build.
 
-[THE BREAKDOWN — 1:00–5:30]
-This is the core of the episode. Apply the Focal Lens rigorously. Surface 3–5 non-obvious insights.
-Each insight must be specific (cite actual elements: exact timestamp, specific comment phrasing,
-bio link type, hook structure). No generic statements like "they used social proof well."
+[ACT 3 — THE LARGER PATTERN  |  5:00–7:30]
+Zoom out. Name the Villain explicitly. Show why this same misdiagnosis happens repeatedly across
+DTC brands — not because founders are careless, but because the system creates a blind spot.
+Explain the structural force at work. Why does interest not equal intent? Why does reach not
+equal revenue? Make it feel like a diagnosis the viewer recognizes from their own business.
+Then present the System Fix: one specific, concrete change — what changes, what it does to the
+funnel, and how you know. Be precise, not vague.
 
-[THE VILLAIN REVEAL — 5:30–6:30]
-Name the Villain explicitly. Show how it explains something the viewer has been confused about
-in their own business. Make it feel like a diagnosis, not a lecture.
-
-[THE SYSTEM FIX — 6:30–7:30]
-Present one specific, actionable change the brand (or the viewer's own brand) could make.
-Be concrete: what exactly would change, what would that do to the funnel, and how do you know.
-
-[CLOSE — 7:30–8:00]
-Deliver the selected Outcome. End with a single sentence that makes the viewer want to come back
-for the next teardown. No generic CTAs. No "smash that subscribe button."
+[CLOSE — BIG INSIGHT  |  7:30–8:00]
+Land the Principle — the single transferable lesson from this teardown. Deliver the selected
+Outcome. One sentence that reframes how the viewer will look at their own content from now on.
+No generic CTAs. No "smash that subscribe button." End on the insight, not the ask.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 OUTPUT FORMAT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 - Write in spoken English — natural, punchy, like a confident analyst on camera
-- Total length: 900–1,200 words (tight enough to hold attention, deep enough to deliver value)
+- Total length: 1,200–1,600 words (6–8 minutes at a deliberate on-camera pace)
+- Every key insight gets fully expanded — do not move on after one sentence
 - Do not include stage directions, camera cues, or B-roll notes
 - Do not include the Hidden Constant section in the output
 - Label each section with the bracket headers above
