@@ -73,16 +73,7 @@ def _get_airtable_api() -> Api:
     return Api(api_key)
 
 
-def _fetch_inbox_record(base_id: str, record_id: str, payload_override: dict = None) -> dict:
-    # If the payload already contains the fields we need, skip the Airtable fetch
-    if payload_override and payload_override.get("notes"):
-        return {
-            "_record_id": record_id,
-            "brand_name":  payload_override.get("brand_name", ""),
-            "source_link": payload_override.get("source_link", ""),
-            "notes":       payload_override.get("notes", ""),
-        }
-
+def _fetch_inbox_record(base_id: str, record_id: str) -> dict:
     api = _get_airtable_api()
     table = api.table(base_id, "Content Inbox")
     record = table.get(record_id)
@@ -144,7 +135,7 @@ def generate():
     log.info("Received generate request: record_id=%s", record_id)
 
     try:
-        brand_data = _fetch_inbox_record(base_id, record_id, payload_override=payload)
+        brand_data = _fetch_inbox_record(base_id, record_id)
     except Exception as exc:
         log.error("Failed to fetch Content Inbox record: %s", exc)
         return jsonify({"error": f"Could not fetch record: {exc}"}), 500
