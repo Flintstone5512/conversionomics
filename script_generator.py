@@ -40,8 +40,11 @@ Assessment data schema (all keys optional — omit any you don't have):
   }
 """
 
+import base64
+import os
 import random
 import logging
+import requests
 from openai import OpenAI
 
 log = logging.getLogger(__name__)
@@ -101,11 +104,12 @@ def _build_system_prompt(has_assessment: bool = False) -> str:
     assessment_rules = ""
     if has_assessment:
         assessment_rules = """
-ASSESSMENT OPENING (mandatory when assessment data is provided — follow exactly):
-A. The very first sentence must be a hook built from the assessment numbers — revenue lost and recovery potential. Model: "This store just missed [revenue_opportunity_lost] in revenue from a single post. And they could claw back [recovery_potential] with a few changes that take less than a day to make." Use the exact dollar figures. Make it land like a gut punch. No warm-up, no preamble.
+ASSESSMENT OPENING (mandatory — follow exactly):
+The assessment data comes from either the structured block labeled ORGANIC REVENUE ASSESSMENT below, or from the screenshot images attached to this message, or both. Read all sources and use the exact numbers you find — do not round or estimate.
+A. The very first sentence must be a hook built from the assessment numbers — revenue lost and recovery potential. Model: "This store just missed $X in revenue from a single post. And they could claw back $Y with a few changes that take less than a day to make." Use the exact dollar figures from the assessment. Make it land like a gut punch. No warm-up, no preamble.
 B. Immediately after the hook, walk through the Organic Revenue Score as if you're reading a report card out loud. State the score, state what it means ("that's Critical territory"), then state the confidence level. Keep it to 2–3 sentences.
 C. Next, walk through the Top Revenue Leaks in descending order by dollar lift. Read each one like items on an autopsy report — specific, matter-of-fact, slightly damning. Each leak gets one tight sentence: what the problem is and what it costs them. Do NOT editorialize yet.
-D. After the leaks, pivot to the buying-intent comment data. Frame it as proof: "Meanwhile, [buying_intent_comments] people left comments showing clear purchase intent. [intent_how_to_buy] people asked where to buy. [intent_price] wanted to know the price." Let the numbers indict the funnel silently.
+D. After the leaks, pivot to the buying-intent comment data. Frame it as proof: "Meanwhile, X people left comments showing clear purchase intent. Y people asked where to buy. Z wanted to know the price." Let the numbers indict the funnel silently.
 E. Transition naturally into the rest of the teardown — something like "So let's actually break down why this is happening and what they'd need to change." This should feel like flipping from the scorecard to the film room.
 F. The assessment section should run 200–300 words. Punchy, not padded.
 """
@@ -222,6 +226,35 @@ Outcome: {rotation['outcome']}
 Write the script now. Start with the first spoken word."""
 
 
+# ── Image fetcher ────────────────────────────────────────────────────────────
+
+def _fetch_images_as_base64(urls: list[str]) -> list[str]:
+    """Download Airtable attachment URLs and return base64-encoded strings."""
+    api_key = os.environ.get("AIRTABLE_API_KEY", "")
+    headers = {"Authorization": f"Bearer {api_key}"} if api_key else {}
+    results = []
+    for url in urls:
+        try:
+            resp = requests.get(url, headers=headers, timeout=20)
+            resp.raise_for_status()
+            results.append(base64.b64encode(resp.content).decode("utf-8"))
+            log.info("Fetched screenshot from %s (%d bytes)", url[:60], len(resp.content))
+        except Exception as exc:
+            log.warning("Could not fetch screenshot %s: %s", url[:60], exc)
+    return results
+
+
+def _build_vision_user_message(text: str, image_b64_list: list[str]) -> list[dict]:
+    """Build a GPT-4o vision content array: text first, then each image."""
+    content: list[dict] = [{"type": "text", "text": text}]
+    for b64 in image_b64_list:
+        content.append({
+            "type": "image_url",
+            "image_url": {"url": f"data:image/png;base64,{b64}", "detail": "high"},
+        })
+    return content
+
+
 # ── Main generator ────────────────────────────────────────────────────────────
 
 def generate_script(brand_data: dict) -> dict:
@@ -237,18 +270,29 @@ def generate_script(brand_data: dict) -> dict:
         "outcome":     random.choice(OUTCOMES),
     }
 
-    has_assessment = bool(brand_data.get("assessment"))
+    screenshot_urls = brand_data.get("screenshot_urls") or []
+    image_b64_list  = _fetch_images_as_base64(screenshot_urls) if screenshot_urls else []
+
+    has_assessment = bool(brand_data.get("assessment") or image_b64_list)
     system_prompt  = _build_system_prompt(has_assessment)
     user_prompt    = _build_user_prompt(brand_data, rotation)
     client = OpenAI()
 
     notes_preview = (brand_data.get("notes") or "")[:120] or "EMPTY"
     log.info(
-        "Generating script for '%s' | Entry: %s... | Villain: %s... | Notes: %s",
+        "Generating script for '%s' | Entry: %s... | Villain: %s... | Screenshots: %d | Notes: %s",
         brand_data.get("brand_name", "?"),
         rotation["entry_point"][:40],
         rotation["villain"][:40],
+        len(image_b64_list),
         notes_preview,
+    )
+
+    # Build user message — plain text or vision content depending on screenshots
+    user_content = (
+        _build_vision_user_message(user_prompt, image_b64_list)
+        if image_b64_list
+        else user_prompt
     )
 
     full_text = ""
@@ -257,7 +301,7 @@ def generate_script(brand_data: dict) -> dict:
         max_tokens=4000,
         messages=[
             {"role": "system", "content": system_prompt},
-            {"role": "user",   "content": user_prompt},
+            {"role": "user",   "content": user_content},
         ],
         stream=True,
     ) as stream:

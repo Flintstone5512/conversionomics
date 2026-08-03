@@ -48,6 +48,9 @@ INBOX_FIELDS = {
     "notes":       "Notes",
 }
 
+# Airtable attachment field name for assessment screenshots
+SCREENSHOTS_FIELD = "Screenshots"
+
 # Fields written to Script Queue
 QUEUE_FIELDS = {
     "Brand Name":      "brand_name",
@@ -82,6 +85,12 @@ def _fetch_inbox_record(base_id: str, record_id: str) -> dict:
     data = {"_record_id": record_id}
     for python_key, airtable_name in INBOX_FIELDS.items():
         data[python_key] = fields.get(airtable_name, "")
+
+    # Extract screenshot attachment URLs (Airtable returns a list of attachment objects)
+    attachments = fields.get(SCREENSHOTS_FIELD) or []
+    data["screenshot_urls"] = [a["url"] for a in attachments if a.get("url")]
+    if data["screenshot_urls"]:
+        log.info("Found %d screenshot(s) attached to record %s", len(data["screenshot_urls"]), record_id)
 
     return data
 
