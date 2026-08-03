@@ -4,6 +4,40 @@ Viral teardown script generator using ChatGPT (gpt-4o).
 Randomly selects one option from each rotation layer (Entry Point, Villain,
 Focal Lens, Role, Outcome), then builds a master prompt and streams a complete
 YouTube teardown script via the OpenAI SDK.
+
+Assessment data schema (all keys optional — omit any you don't have):
+  assessment: {
+    # Organic Revenue Summary
+    "organic_revenue_score": int,          # e.g. 36  (out of 100)
+    "score_label": str,                    # e.g. "Critical"
+    "revenue_opportunity_lost": float,     # e.g. 30724.0
+    "recovery_potential": float,           # e.g. 23043.0
+    "buying_intent_comments": int,         # e.g. 1617
+    "confidence_level": int,               # e.g. 65  (percent)
+
+    # Social Performance
+    "total_views": int,
+    "shares": int,
+    "saves": int,
+    "total_comments": int,
+    "profile_visits": int,
+
+    # Buyer Intent Comment breakdown (counts per category)
+    "intent_how_to_buy": int,              # Weight 12
+    "intent_price": int,                   # Weight 10
+    "intent_available": int,               # Weight 8
+    "intent_coupon": int,                  # Weight 7
+    "intent_shipping": int,                # Weight 6
+    "intent_restock": int,                 # Weight 5
+    "intent_ordered": int,                 # Weight 10
+    "intent_need_want": int,               # Weight 5
+
+    # Top Revenue Leaks (list of dicts with "issue" and "lift")
+    "revenue_leaks": [
+      {"issue": "No website or product page", "lift": 14149},
+      ...
+    ],
+  }
 """
 
 import random
@@ -63,16 +97,28 @@ OUTCOMES = [
 
 # ── Prompt builder ───────────────────────────────────────────────────────────
 
-def _build_system_prompt() -> str:
-    return """You write YouTube teardown scripts for a DTC conversion analyst channel.
+def _build_system_prompt(has_assessment: bool = False) -> str:
+    assessment_rules = ""
+    if has_assessment:
+        assessment_rules = """
+ASSESSMENT OPENING (mandatory when assessment data is provided — follow exactly):
+A. The very first sentence must be a hook built from the assessment numbers — revenue lost and recovery potential. Model: "This store just missed [revenue_opportunity_lost] in revenue from a single post. And they could claw back [recovery_potential] with a few changes that take less than a day to make." Use the exact dollar figures. Make it land like a gut punch. No warm-up, no preamble.
+B. Immediately after the hook, walk through the Organic Revenue Score as if you're reading a report card out loud. State the score, state what it means ("that's Critical territory"), then state the confidence level. Keep it to 2–3 sentences.
+C. Next, walk through the Top Revenue Leaks in descending order by dollar lift. Read each one like items on an autopsy report — specific, matter-of-fact, slightly damning. Each leak gets one tight sentence: what the problem is and what it costs them. Do NOT editorialize yet.
+D. After the leaks, pivot to the buying-intent comment data. Frame it as proof: "Meanwhile, [buying_intent_comments] people left comments showing clear purchase intent. [intent_how_to_buy] people asked where to buy. [intent_price] wanted to know the price." Let the numbers indict the funnel silently.
+E. Transition naturally into the rest of the teardown — something like "So let's actually break down why this is happening and what they'd need to change." This should feel like flipping from the scorecard to the film room.
+F. The assessment section should run 200–300 words. Punchy, not padded.
+"""
+
+    return f"""You write YouTube teardown scripts for a DTC conversion analyst channel.
 
 RULES — follow every one, no exceptions:
 1. Output ONLY the spoken script. No preamble ("Certainly!", "Here's a script..."), no section labels, no timestamps, no meta-commentary ("here's where we...", "now let's look at..."). First word out is the first spoken word of the video.
-2. Every specific fact, number, observation, and detail in the script must come directly from the analyst notes. Do not invent, substitute, or generalize. If the notes say there is no bio link — discuss the absence of a bio link. If the notes give an exact number — use that exact number. If the notes mention AI-generated content — that goes in the script.
+2. Every specific fact, number, observation, and detail in the script must come directly from the analyst notes and assessment data. Do not invent, substitute, or generalize. If the notes say there is no bio link — discuss the absence of a bio link. If the notes give an exact number — use that exact number. If the notes mention AI-generated content — that goes in the script.
 3. This is a breakdown of the SPECIFIC video described in the notes, not a generic teardown template. The viewer should be able to follow along watching that exact video.
 4. Tone: casual and direct. Like a sharp friend who knows more about conversion than anyone in the room. Not formal, not corporate. Short punchy sentences. Expand when an idea needs space. Confident but never stiff.
-5. Structure (follow naturally, do not label or announce):
-   - Open with a pattern interrupt. Walk through the video and its exact numbers. Build the gap between reach and revenue.
+5. Structure (follow naturally, do not label or announce):{assessment_rules}
+   - {"After the assessment section: open" if has_assessment else "Open"} with a pattern interrupt. Walk through the video and its exact numbers. Build the gap between reach and revenue.
    - Immediately after the intro, drop in a story, anecdote, or piece of evidence that grounds the analysis. This can be: a personal story or moment the host experienced, a quick anecdote about a brand that got this wrong or right, a relevant study or data point (psychology, consumer behavior, conversion research), or a concrete real-world parallel that DTC store owners will instantly recognize. It should feel like a natural pivot — "and here's why that matters…" or "I've seen this exact thing before…" — not a labeled section. Keep it tight: 3–5 sentences. It must reinforce the core insight of the teardown, not just be interesting for its own sake.
    - Dig into 3–4 non-obvious insights pulled from the notes. Each gets fully expanded — state it, then spend 45–60 seconds on the buyer's internal experience, where momentum broke, what cold traffic actually does (it doesn't investigate, doesn't open tabs, follows momentum — the moment it breaks, they're scrolling again).
    - Zoom out to the larger pattern. Name the villain naturally in conversation. One concrete system fix.
@@ -80,19 +126,89 @@ RULES — follow every one, no exceptions:
 6. Length: 1,200–1,600 words."""
 
 
+def _format_assessment_block(a: dict) -> str:
+    """Render the assessment dict into a structured text block for the prompt."""
+    lines = ["ORGANIC REVENUE ASSESSMENT (use every number that appears here):"]
+
+    score = a.get("organic_revenue_score")
+    label = a.get("score_label", "")
+    lost  = a.get("revenue_opportunity_lost")
+    recov = a.get("recovery_potential")
+    conf  = a.get("confidence_level")
+    bic   = a.get("buying_intent_comments")
+
+    if score is not None:
+        lines.append(f"  Organic Revenue Score: {score}/100 — {label}")
+    if lost is not None:
+        lines.append(f"  Revenue Opportunity Lost: ${lost:,.0f}")
+    if recov is not None:
+        lines.append(f"  Recovery Potential: +${recov:,.0f}")
+    if bic is not None:
+        lines.append(f"  Buying Intent Comments: {bic:,}")
+    if conf is not None:
+        lines.append(f"  Confidence Level: {conf}%")
+
+    social_keys = [
+        ("total_views", "Total Views"),
+        ("shares", "Shares"),
+        ("saves", "Saves"),
+        ("total_comments", "Total Comments"),
+        ("profile_visits", "Profile Visits"),
+    ]
+    social_vals = [(label, a[k]) for k, label in social_keys if k in a]
+    if social_vals:
+        lines.append("  Social Performance: " + " | ".join(f"{l}: {v:,}" for l, v in social_vals))
+
+    intent_map = [
+        ("intent_how_to_buy",  '"How do I buy?" / "Where can I get it?"',  12),
+        ("intent_price",       '"Price?" / "How much?"',                   10),
+        ("intent_available",   '"Available?" / "In stock?"',                8),
+        ("intent_coupon",      '"Coupon?" / "Discount?"',                   7),
+        ("intent_shipping",    '"Shipping?" / "Does it ship to..."',         6),
+        ("intent_restock",     '"Restock?" / "When is it back?"',            5),
+        ("intent_ordered",     '"Ordered!" / "Just bought!"',               10),
+        ("intent_need_want",   '"Need this" / "Want" / "Link?"',             5),
+    ]
+    intent_lines = [
+        f"    {label} (weight {w}): {a[k]:,}"
+        for k, label, w in intent_map if k in a
+    ]
+    if intent_lines:
+        lines.append("  Buyer Intent Comments:")
+        lines.extend(intent_lines)
+
+    leaks = a.get("revenue_leaks", [])
+    if leaks:
+        lines.append("  Top Revenue Leaks (ranked by estimated lift):")
+        for leak in leaks:
+            issue = leak.get("issue", "")
+            lift  = leak.get("lift", 0)
+            lines.append(f"    +${lift:,} — {issue}")
+
+    return "\n".join(lines)
+
+
 def _build_user_prompt(brand_data: dict, rotation: dict) -> str:
-    brand    = brand_data.get("brand_name", "Unknown Brand")
-    src_link = brand_data.get("source_link", "")
-    notes    = brand_data.get("notes", "").strip()
+    brand      = brand_data.get("brand_name", "Unknown Brand")
+    src_link   = brand_data.get("source_link", "")
+    notes      = brand_data.get("notes", "").strip()
+    assessment = brand_data.get("assessment")
 
     if not notes:
         notes = "(No analyst notes provided.)"
 
-    return f"""Write a YouTube teardown script for this video using ONLY the details in the notes below.
+    assessment_block = ""
+    if assessment:
+        assessment_block = f"""
+{_format_assessment_block(assessment)}
+
+"""
+
+    return f"""Write a YouTube teardown script for this video using ONLY the details in the notes and assessment data below.
 
 Video: {src_link}
 Brand: {brand}
-
+{assessment_block}
 ANALYST NOTES (your only source material — every point in these notes must appear in the script):
 {notes}
 
@@ -121,8 +237,9 @@ def generate_script(brand_data: dict) -> dict:
         "outcome":     random.choice(OUTCOMES),
     }
 
-    system_prompt = _build_system_prompt()
-    user_prompt   = _build_user_prompt(brand_data, rotation)
+    has_assessment = bool(brand_data.get("assessment"))
+    system_prompt  = _build_system_prompt(has_assessment)
+    user_prompt    = _build_user_prompt(brand_data, rotation)
     client = OpenAI()
 
     notes_preview = (brand_data.get("notes") or "")[:120] or "EMPTY"
